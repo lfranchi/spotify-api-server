@@ -486,7 +486,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
 
   // Log in to Spotify
-  sp_session_login(session, account.username, account.password);
+  sp_session_login(session, account.username, account.password, false);
 
   /** by hugo: 
   * Lets load this up here instead when the container is loaded
