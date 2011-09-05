@@ -1,0 +1,5 @@
+.cache
+.settings
+appkey.c
+account.c
+server
