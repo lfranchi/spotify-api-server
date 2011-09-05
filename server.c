@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */ 
 
-#include <apr.h>
+
 #include <assert.h>
 #include <event2/buffer.h>
 #include <event2/event.h>
@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <svn_diff.h> 
 #include <sys/queue.h>
 
 #include "constants.h"
@@ -40,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define HTTP_ERROR 500
 #define HTTP_NOTIMPL 501
+#define PORT 5512
 
 // Application key
 extern const unsigned char g_appkey[]; 
@@ -69,7 +69,6 @@ struct state {
 
   struct evhttp *http;
 
-  apr_pool_t *pool;
 };
 
 typedef void (*handle_playlist_fn)(sp_playlist *playlist,
@@ -366,7 +365,7 @@ static void logged_out(sp_session *session) {
   event_del(state->sigint);
   fprintf(stderr, "Breaking loop\n");
   event_base_loopbreak(state->event_base);
-  apr_pool_destroy(state->pool);
+  //apr_pool_destroy(state->pool);
 }
 
 
@@ -433,15 +432,7 @@ int main(int argc, char **argv) {
   state->timer = evtimer_new(state->event_base, &process_events, state);
   fprintf(stderr, "Sending signals\n");
   state->sigint = evsignal_new(state->event_base, SIGINT, &sigint_handler, state);
-   fprintf(stderr, "Starting APR\n");
-  // Initialize APR
-  apr_status_t rv = apr_initialize();
-
-  if (rv != APR_SUCCESS)
-    return EXIT_FAILURE;
-
-  fprintf(stderr, "Creating Pool\n");
-  apr_pool_create(&state->pool, NULL);
+ 
 
   
   // Initialize libspotify
@@ -502,7 +493,7 @@ int main(int argc, char **argv) {
 
   fprintf(stderr, "Binding Socket\n");
   // TODO(liesen): Make address and port configurable
-  if (evhttp_bind_socket(state->http, "0.0.0.0", 5512) == -1) {
+  if (evhttp_bind_socket(state->http, "0.0.0.0", PORT) == -1) {
     fprintf(stderr, "fail\n");
     sp_session_logout(session);
   }

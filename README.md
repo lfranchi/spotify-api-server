@@ -10,7 +10,6 @@ stripped version of liesens spotify-api-server https://github.com/liesen/spotify
 ## How to build
 
 1. Make sure you have the required libraries
-  * subversion (`libsvn-dev`) and its dependency, `libapr`
   * [libevent](http://monkey.org/~provos/libevent/)
   * [jansson](http://www.digip.org/jansson/) > 2.0
 
