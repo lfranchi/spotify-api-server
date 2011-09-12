@@ -393,6 +393,7 @@ static void process_events(evutil_socket_t socket,
                            short what,
                            void *userdata) {
 
+  fprintf(stderr, "processing_events!\n");
   struct state *state = userdata;
   event_del(state->timer);
   int timeout = 0;
