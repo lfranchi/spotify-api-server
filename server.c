@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
 #include <apr.h>
 #include <assert.h>
@@ -43,8 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HTTP_NOTIMPL 501
 
 // Application key
-extern const unsigned char g_appkey[]; 
-extern const size_t g_appkey_size; 
+extern const unsigned char g_appkey[];
+extern const size_t g_appkey_size;
 
 // Account information
 extern const char username[];
@@ -489,7 +489,7 @@ static void put_playlist_add_tracks(sp_playlist *playlist,
   const sp_track **tracks = calloc(num_tracks, sizeof (sp_track *));
   int num_valid_tracks = json_to_tracks(json, tracks, num_tracks);
   json_decref(json);
-  
+
   // Bail if no tracks could be read from input
   if (num_valid_tracks == 0) {
     send_error(request, HTTP_BADREQUEST, "No valid tracks");
@@ -547,13 +547,13 @@ static void put_playlist_remove_tracks(sp_playlist *playlist,
 
   int *tracks = calloc(count, sizeof(int));
 
-  for (int i = 0; i < count; i++) 
-    tracks[i] = index + i; 
+  for (int i = 0; i < count; i++)
+    tracks[i] = index + i;
 
   struct playlist_handler *handler = register_playlist_callbacks(
       playlist, request, &get_playlist,
       &playlist_update_in_progress_callbacks, NULL);
-  sp_error remove_tracks_error = sp_playlist_remove_tracks(playlist, tracks, 
+  sp_error remove_tracks_error = sp_playlist_remove_tracks(playlist, tracks,
                                                            count);
 
   if (remove_tracks_error != SP_ERROR_OK) {
@@ -625,7 +625,7 @@ static void put_playlist_patch(sp_playlist *playlist,
     }
 
     sp_track *track = sp_link_as_track(track_link);
-    
+
     if (track == NULL)
       continue;
 
@@ -633,7 +633,7 @@ static void put_playlist_patch(sp_playlist *playlist,
   }
 
   json_decref(json);
-  
+
   // Bail if no tracks could be read from input
   if (num_valid_tracks == 0) {
     send_error(request, HTTP_BADREQUEST, "No valid tracks");
@@ -646,8 +646,8 @@ static void put_playlist_patch(sp_playlist *playlist,
   // Apply diff
   apr_pool_t *pool = state->pool;
   svn_diff_t *diff;
-  svn_error_t *diff_error = diff_playlist_tracks(&diff, playlist, tracks, 
-                                                 num_valid_tracks, pool); 
+  svn_error_t *diff_error = diff_playlist_tracks(&diff, playlist, tracks,
+                                                 num_valid_tracks, pool);
 
   if (diff_error != SVN_NO_ERROR) {
     free(tracks);
@@ -881,7 +881,7 @@ static void handle_request(struct evhttp_request *request,
     register_playlist_callbacks(playlist, request, request_callback,
                                 &playlist_state_changed_callbacks,
                                 callback_userdata);
-  } 
+  }
 }
 
 static void playlistcontainer_loaded(sp_playlistcontainer *pc, void *userdata);
@@ -902,7 +902,7 @@ static void playlistcontainer_loaded(sp_playlistcontainer *pc, void *userdata) {
   evhttp_set_gencb(state->http, &handle_request, state);
 
   // TODO(liesen): Make address and port configurable
-  if (evhttp_bind_socket(state->http, "0.0.0.0", 1337) == -1) {
+  if (evhttp_bind_socket(state->http, "0.0.0.0", 8080) == -1) {
     fprintf(stderr, "fail\n");
     sp_session_logout(session);
   }
