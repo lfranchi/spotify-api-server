@@ -741,6 +741,7 @@ static void handle_request(struct evhttp_request *request,
   evhttp_add_header(evhttp_request_get_output_headers(request),
                     "Server", "johan@liesen.se/spotify-api-server");
 
+  fprintf(stderr, "Got request...\n");
   // Check request method
   int http_method = evhttp_request_get_command(request);
 
