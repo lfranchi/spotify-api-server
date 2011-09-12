@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define HTTP_ERROR 500
 #define HTTP_NOTIMPL 501
-#define PORT 5512
+#define PORT 8080
 
 // Application key
 extern const unsigned char g_appkey[]; 
