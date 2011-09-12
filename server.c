@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */ 
+ */
 
 
 #include <assert.h>
@@ -42,8 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PORT 8080
 
 // Application key
-extern const unsigned char g_appkey[]; 
-extern const size_t g_appkey_size; 
+extern const unsigned char g_appkey[];
+extern const size_t g_appkey_size;
 
 // Account information
 extern const char username[];
@@ -87,8 +87,8 @@ static void send_reply(struct evhttp_request *request,
                        int code,
                        const char *message,
                        struct evbuffer *body) {
-                       
-  fprintf(stderr, "Got JSON response, attempting to send reply\n");                     
+
+  fprintf(stderr, "Got JSON response, attempting to send reply\n");
   evhttp_add_header(evhttp_request_get_output_headers(request),
                     "Content-type", "application/json; charset=UTF-8");
   bool empty_body = body == NULL;
@@ -99,10 +99,10 @@ static void send_reply(struct evhttp_request *request,
   fprintf(stderr, "Sending the reply\n");
   evhttp_send_reply(request, code, message, body);
 
-  fprintf(stderr, "Freeing body\n");	
+  fprintf(stderr, "Freeing body\n");
   if (empty_body)
     evbuffer_free(body);
-  fprintf(stderr, "Finished!\n");	  
+  fprintf(stderr, "Finished!\n");
 }
 
 // Sends JSON to the client (also `free`s the JSON object)
@@ -110,8 +110,8 @@ static void send_reply_json(struct evhttp_request *request,
                             int code,
                             const char *message,
                             json_t *json) {
-                            
-  fprintf(stderr, "Sending the JSON...\n");                          
+
+  fprintf(stderr, "Sending the JSON...\n");
   struct evbuffer *buf = evhttp_request_get_output_buffer(request);
   char *json_str = json_dumps(json, JSON_COMPACT);
   json_decref(json);
@@ -120,7 +120,7 @@ static void send_reply_json(struct evhttp_request *request,
   free(json_str);
   send_reply(request, code, message, buf);
   fprintf(stderr, "JSON reply sent!\n");
-  
+
 }
 
 // Will wrap an error message in a JSON object before sending it
@@ -156,7 +156,7 @@ static struct playlist_handler *register_playlist_callbacks(
 
 
 static void playlist_state_changed(sp_playlist *playlist, void *userdata) {
-  
+
   fprintf(stderr, "Playlist state changed\n");
   if (!sp_playlist_is_loaded(playlist))
     return;
@@ -182,17 +182,17 @@ static void not_implemented(sp_playlist *playlist,
 static void get_playlist(sp_playlist *playlist,
                          struct evhttp_request *request,
                          void *userdata) {
-                         
-  fprintf(stderr, "Getting playlist\n");                       
+
+  fprintf(stderr, "Getting playlist\n");
   json_t *json = json_object();
 
-   fprintf(stderr, "Parsing playlist\n");  	
+   fprintf(stderr, "Parsing playlist\n");
   if (playlist_to_json(playlist, json) == NULL) {
     json_decref(json);
     send_error(request, HTTP_ERROR, "");
     return;
   }
-  fprintf(stderr, "Created JSON response, Sending...\n"); 
+  fprintf(stderr, "Created JSON response, Sending...\n");
   send_reply_json(request, HTTP_OK, "OK", json);
 }
 
@@ -272,7 +272,7 @@ static void handle_request(struct evhttp_request *request,
     free(uri);
     return;
   }
-  
+
   fprintf(stderr, "Seems to be a playlist uri...\n");
   sp_link *playlist_link = sp_link_create_from_string(playlist_uri);
 
@@ -291,8 +291,8 @@ static void handle_request(struct evhttp_request *request,
 
   struct state *state = userdata;
   sp_session *session = state->session;
-  
-  fprintf(stderr, "Adding playlist to session\n"); 
+
+  fprintf(stderr, "Adding playlist to session\n");
   sp_playlist *playlist = sp_playlist_create(session, playlist_link);
   sp_link_release(playlist_link);
 
@@ -304,7 +304,7 @@ static void handle_request(struct evhttp_request *request,
   fprintf(stderr, "Found playlist\n");
   sp_playlist_add_ref(playlist);
   fprintf(stderr, "Added ref\n");
-  
+
   free(uri);
 
   // Default request handler
@@ -326,7 +326,7 @@ static void handle_request(struct evhttp_request *request,
     fprintf(stderr, "Playlist loaded, sending callback.\n");
     request_callback(playlist, request, callback_userdata);
     return;
-    
+
   } else {
     // Wait for playlist to load
     fprintf(stderr, "Waiting on playlist...\n");
@@ -334,7 +334,7 @@ static void handle_request(struct evhttp_request *request,
                                 &playlist_state_changed_callbacks,
                                 callback_userdata);
   }
-   
+
 }
 
 static void playlistcontainer_loaded(sp_playlistcontainer *pc, void *userdata);
@@ -344,7 +344,7 @@ static sp_playlistcontainer_callbacks playlistcontainer_callbacks = {
 };
 
 static void playlistcontainer_loaded(sp_playlistcontainer *pc, void *userdata) {
-  
+
    fprintf(stderr, "Rootlist synchronized\n");
 }
 
@@ -377,7 +377,7 @@ static void logged_in(sp_session *session, sp_error error) {
     return;
   }
 
-  fprintf(stderr, "Logged in to Spotify API\n");	
+  fprintf(stderr, "Logged in to Spotify API\n");
   struct state *state = sp_session_userdata(session);
   state->session = session;
   evsignal_add(state->sigint, NULL);
@@ -385,14 +385,14 @@ static void logged_in(sp_session *session, sp_error error) {
   sp_playlistcontainer *pc = sp_session_playlistcontainer(session);
   sp_playlistcontainer_add_callbacks(pc, &playlistcontainer_callbacks,
                                      session);
-  fprintf(stderr, "Container loaded\n"); 
-  fprintf(stderr, "Got %d playlists in container\n", sp_playlistcontainer_num_playlists(pc));                                   
+  fprintf(stderr, "Container loaded\n");
+  fprintf(stderr, "Got %d playlists in container\n", sp_playlistcontainer_num_playlists(pc));
 }
 
 static void process_events(evutil_socket_t socket,
                            short what,
                            void *userdata) {
-                           
+
   struct state *state = userdata;
   event_del(state->timer);
   int timeout = 0;
@@ -407,7 +407,7 @@ static void process_events(evutil_socket_t socket,
 }
 
 static void notify_main_thread(sp_session *session) {
-
+  fprintf(stderr, "Notifying main thread...\n");
   struct state *state = sp_session_userdata(session);
   event_active(state->async, 0, 1);
 }
@@ -427,14 +427,14 @@ int main(int argc, char **argv) {
   evthread_use_pthreads();
   fprintf(stderr, "Initializing\n");
   state->event_base = event_base_new();
-  fprintf(stderr, "Proccessing events\n");  
+  fprintf(stderr, "Proccessing events\n");
   state->async = event_new(state->event_base, -1, 0, &process_events, state);
   state->timer = evtimer_new(state->event_base, &process_events, state);
   fprintf(stderr, "Sending signals\n");
   state->sigint = evsignal_new(state->event_base, SIGINT, &sigint_handler, state);
- 
 
-  
+
+
   // Initialize libspotify
   sp_session_callbacks session_callbacks = {
 	&logged_in,
@@ -454,7 +454,7 @@ int main(int argc, char **argv) {
 	NULL, // get_audio_buffer_stats
 	NULL, //offline_status_updated,
 };
-  
+
 
   sp_session_config session_config = {
     .api_version = SPOTIFY_API_VERSION,
@@ -479,7 +479,7 @@ int main(int argc, char **argv) {
   // Log in to Spotify
   sp_session_login(session, account.username, account.password, false);
 
-  /** by hugo: 
+  /** by hugo:
   * Lets load this up here instead when the container is loaded
   * Seems to be able to load other users playlists faster this way?
   * It can take serveral seconds if playlist belongs to other user and is the
